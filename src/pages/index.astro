@@ -1,17 +1,259 @@
 ---
-
+import videos from '../data/videos.json';
+const PER_PAGE = 30;
 ---
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ピクルスはみ出てますよ？ アーカイブ</title>
+  <style>
+    body { font-family: -apple-system, sans-serif; max-width: 1100px; margin: 0 auto; padding: 24px; line-height: 1.6; color: #222; }
+    h1 { font-size: 1.4rem; }
+    .notice { background: #fff8e1; border-left: 4px solid #fbc02d; padding: 12px 16px; border-radius: 4px; font-size: 0.9rem; margin-bottom: 40px; }
+    .search-bar { margin-bottom: 12px; }
+    .search-bar input { width: 100%; max-width: 480px; padding: 8px 12px; font-size: 1rem; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; border: 2px solid #222; }
+    th { text-align: center; padding: 10px 12px; background: #f1f3f4; border-bottom: 2px solid #222; border-right: 1px solid #ccc; white-space: nowrap; }
+    td { padding: 10px 12px; border-bottom: 1px solid #ccc; border-right: 1px solid #ccc; vertical-align: middle; }
+    th:last-child, td:last-child { border-right: none; }
+    tr:hover td { background: #fafafa; }
+    tr.hidden { display: none; }
+    .thumb { width: 120px; min-width: 120px; }
+    .thumb img { width: 120px; height: 68px; object-fit: cover; border-radius: 4px; display: block; }
+    .title-cell a { color: #0b57d0; text-decoration: none; font-weight: 500; }
+    .title-cell a:hover { text-decoration: underline; }
+	.summary-link {
+  		display: inline-block;
+		max-width: 100%;
+  		background: #e8f0fe;
+  		color: #1a73e8;
+  		padding: 4px 12px;
+  		border-radius: 4px;
+  		text-decoration: none;
+  		font-size: 0.82rem;
+  		white-space: nowrap;
+  		box-sizing: border-box;
+  		vertical-align: middle;
+	}
+    .summary-link:hover { background: #c5d8fc; }
+    .no-summary { color: #aaa; font-size: 0.82rem; }
+    #result-count { font-size: 0.9rem; color: #666; margin-bottom: 8px; }
+    .pagination { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; margin: 0; }
+    .pagination button { min-width: 36px; height: 36px; padding: 0 10px; border: none; border-radius: 50%; background: transparent; cursor: pointer; font-size: 0.95rem; color: #0b57d0; font-weight: 500; }
+    .pagination button:hover:not(.active):not(:disabled) { background: #f1f3f4; }
+    .pagination button.active { background: transparent; color: #222; font-weight: 700; cursor: default; pointer-events: none; }
+    .pagination button.prev-next { border-radius: 4px; color: #0b57d0; font-size: 0.9rem; }
+    .pagination button:disabled { color: #aaa; cursor: default; pointer-events: none; }
+    .pagination-wrap-top { margin-bottom: 20px; }
+    .pagination-wrap-bottom { margin-top: 12px; }
+	@media (max-width: 600px) {
+		body {
+			padding: 12px;
+			font-size: 14px;
+		}
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
+		h1 {
+			font-size: 1.1rem;
+		}
+
+		.search-bar input {
+			font-size: 14px;
+			padding: 10px 12px;
+		}
+
+		table {
+			font-size: 12px;
+		}
+
+		th, td {
+			padding: 8px 6px;
+		}
+
+		.thumb {
+			width: 96px;
+			min-width: 96px;
+		}
+
+		.thumb img {
+			width: 96px;
+			height: 54px;
+		}
+
+		/* 要約ボタンを押しやすく */
+		.summary-link {
+			display: inline-block;
+			padding: 6px 14px;
+			font-size: 12px;
+		}
+
+		/* 横スクロールを少しでも抑える */
+		table {
+  			table-layout: fixed;
+		}
+
+		th:nth-child(1),
+		td:nth-child(1) {
+  			width: 28%;
+		}
+
+		th:nth-child(2),
+		td:nth-child(2) {
+  			width: 42%;
+		}
+
+		th:nth-child(3),
+		td:nth-child(3) {
+  			width: 30%;
+  			text-align: center;
+  			overflow: hidden;
+		}
+	}
+  </style>
+</head>
+<body>
+  <h1>📻 ピクルスはみ出てますよ？ アーカイブ</h1>
+    <div style="background:#f8f9fa; border-radius:8px; padding:16px 20px; margin-bottom:24px; font-size:0.95rem; line-height:1.8;">
+    <p style="margin:0 0 8px;">プロハンバーガーさんとアボカズヒロさんによるYouTubeライブ配信<a href="https://www.youtube.com/@prohamburger1118/streams" target="_blank" style="color:#0b57d0; text-decoration:none;">「ピクルスはみ出てますよ？」</a>の非公式アーカイブサイトです。</p>
+    <p style="margin:0;">これまでの放送を一覧で確認でき、AIによる自動要約を掲載しています。（一部抜けあり）</p>
+  </div>
+
+  <div class="notice">
+    ⚠️ 要約ページの内容はYouTubeの自動字幕をAIが解析・まとめたものです。字幕の認識精度や自動要約の限界により、人名・曲名・固有名詞などに誤りが含まれる場合があります。さらに、番組の展開やエピソードの解釈が実際と異なることもありますが、そうしたゆらぎも含めて参考としてお楽しみください。
+  </div>
+
+  <div class="search-bar">
+    <input type="text" id="search" placeholder="タイトル・要約で検索..." />
+  </div>
+  <div id="result-count"></div>
+
+  <div class="pagination pagination-wrap-top" id="pagination-top"></div>
+
+  <table id="video-table">
+    <thead>
+      <tr>
+        <th class="thumb">サムネイル</th>
+        <th>タイトル</th>
+        <th>要約</th>
+      </tr>
+    </thead>
+    <tbody id="table-body">
+      {videos.map(v => (
+        <tr
+          data-title={v.title.toLowerCase()}
+          data-summary={v.summary ? JSON.stringify(v.summary).toLowerCase() : ''}
+        >
+          <td class="thumb">
+            <a href={v.url} target="_blank">
+              <img src={`https://img.youtube.com/vi/${v.id}/mqdefault.jpg`} alt={v.title} loading="lazy" />
+            </a>
+          </td>
+          <td class="title-cell">
+            <a href={v.url} target="_blank">{v.title}</a>
+          </td>
+          <td style="text-align:center;">
+            {v.has_summary
+              ? <a class="summary-link" href={`/episodes/${v.id}`}>要約を見る</a>
+              : <span class="no-summary">—</span>
+            }
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+
+  <div class="pagination pagination-wrap-bottom" id="pagination-bottom"></div>
+
+  <script define:vars={{ PER_PAGE }}>
+    const allRows = Array.from(document.querySelectorAll('#table-body tr'));
+    const searchInput = document.getElementById('search');
+    const paginationTop = document.getElementById('pagination-top');
+    const paginationBottom = document.getElementById('pagination-bottom');
+    const resultCount = document.getElementById('result-count');
+    let currentPage = 1;
+    let filteredRows = allRows;
+
+    function getPageFromHash() {
+      const match = location.hash.match(/page=(\d+)/);
+      return match ? parseInt(match[1]) : 1;
+    }
+
+    function setHash(page) {
+      const q = searchInput.value.trim();
+      location.hash = q ? `page=${page}&q=${encodeURIComponent(q)}` : `page=${page}`;
+    }
+
+    function getQueryFromHash() {
+      const match = location.hash.match(/q=([^&]*)/);
+      return match ? decodeURIComponent(match[1]) : '';
+    }
+
+    function buildPagination(container, scrollTop) {
+      const totalPages = Math.ceil(filteredRows.length / PER_PAGE);
+      container.innerHTML = '';
+
+      const prev = document.createElement('button');
+      prev.textContent = '‹';
+      prev.style.cssText = 'min-width:36px;height:36px;padding:0 10px;border:none;border-radius:4px;background:transparent;font-size:0.9rem;color:#0b57d0;cursor:pointer;';
+      if (currentPage === 1) { prev.disabled = true; prev.style.color = '#aaa'; prev.style.cursor = 'default'; }
+      prev.addEventListener('click', () => { setHash(currentPage - 1); if (scrollTop) window.scrollTo(0, 0); });
+      container.appendChild(prev);
+
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        if (i === currentPage) {
+          btn.style.cssText = 'min-width:36px;height:36px;padding:0 10px;border:none;border-radius:50%;background:transparent;font-size:0.95rem;color:#222;font-weight:700;cursor:default;pointer-events:none;';
+        } else {
+          btn.style.cssText = 'min-width:36px;height:36px;padding:0 10px;border:none;border-radius:50%;background:transparent;font-size:0.95rem;color:#0b57d0;font-weight:500;cursor:pointer;';
+          btn.addEventListener('mouseover', () => { btn.style.background = '#f1f3f4'; });
+          btn.addEventListener('mouseout', () => { btn.style.background = 'transparent'; });
+          btn.addEventListener('click', () => { setHash(i); if (scrollTop) window.scrollTo(0, 0); });
+        }
+        container.appendChild(btn);
+      }
+
+      const next = document.createElement('button');
+      next.textContent = '›';
+      next.style.cssText = 'min-width:36px;height:36px;padding:0 10px;border:none;border-radius:4px;background:transparent;font-size:0.9rem;color:#0b57d0;cursor:pointer;';
+      if (currentPage === totalPages) { next.disabled = true; next.style.color = '#aaa'; next.style.cursor = 'default'; }
+      next.addEventListener('click', () => { setHash(currentPage + 1); if (scrollTop) window.scrollTo(0, 0); });
+      container.appendChild(next);
+    }
+
+    function render() {
+      allRows.forEach(r => r.classList.add('hidden'));
+      const start = (currentPage - 1) * PER_PAGE;
+      filteredRows.slice(start, start + PER_PAGE).forEach(r => r.classList.remove('hidden'));
+      resultCount.textContent = `${filteredRows.length}件中 ${start + 1}〜${Math.min(start + PER_PAGE, filteredRows.length)}件を表示`;
+      buildPagination(paginationTop, true);
+      buildPagination(paginationBottom, false);
+    }
+
+    function applyHash() {
+      const q = getQueryFromHash();
+      currentPage = getPageFromHash();
+      if (q) {
+        searchInput.value = q;
+        filteredRows = allRows.filter(r =>
+          r.dataset.title.includes(q) || r.dataset.summary.includes(q)
+        );
+      } else {
+        searchInput.value = '';
+        filteredRows = allRows;
+      }
+      render();
+    }
+
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.trim().toLowerCase();
+      filteredRows = q ? allRows.filter(r => r.dataset.title.includes(q) || r.dataset.summary.includes(q)) : allRows;
+      currentPage = 1;
+      setHash(1);
+    });
+
+    window.addEventListener('hashchange', applyHash);
+    applyHash();
+  </script>
+</body>
 </html>
