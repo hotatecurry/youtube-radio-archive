@@ -1,0 +1,131 @@
+---
+import videos from '../../data/videos.json';
+export function getStaticPaths() {
+  return videos
+    .filter(v => v.has_summary)
+    .map(v => ({ params: { id: v.id }, props: { video: v } }));
+}
+const { video } = Astro.props;
+const s = video.summary;
+---
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{video.title}</title>
+  <style>
+    body { font-family: -apple-system, sans-serif; max-width: 960px; margin: 0 auto; padding: 24px; line-height: 1.7; }
+    a { color: #0b57d0; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    h1 { font-size: 1.3rem; }
+    h2 { margin-top: 2rem; font-size: 1rem; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+    .summary-text { background: #f8f9fa; padding: 16px; border-radius: 8px; }
+    .topic-list { display: flex; flex-wrap: wrap; gap: 8px; padding: 0; list-style: none; }
+    .topic-list li { background: #e8f0fe; color: #1a73e8; padding: 4px 12px; border-radius: 16px; font-size: 0.85rem; }
+    .notice { background: #fff8e1; border-left: 4px solid #fbc02d; padding: 12px 16px; border-radius: 4px; font-size: 0.9rem; margin-bottom: 24px; }
+    .summary-text { background: #f8f9fa; padding: 16px; border-radius: 8px; line-height: 2; letter-spacing: 0.03em; }
+    @media (max-width: 600px) {
+        body {
+            padding: 12px;
+            font-size: 14px;
+        }
+
+        h1 {
+            font-size: 1.1rem;
+        }
+
+        .summary-text {
+            font-size: 14px;
+            padding: 12px;
+        }
+
+        .topic-list li {
+            font-size: 12px;
+            padding: 4px 10px;
+        }
+    }
+  </style>
+</head>
+<body>
+<p><button onclick="history.back()" style="background:none;border:none;color:#0b57d0;cursor:pointer;font-size:1rem;padding:0;">← 一覧へ戻る</button></p>
+  <div class="notice">
+  ⚠️ 要約ページの内容はYouTubeの自動字幕をAIが解析・まとめたものです。字幕の認識精度や自動要約の限界により、人名・曲名・固有名詞などに誤りが含まれる場合があります。さらに、番組の展開やエピソードの解釈が実際と異なることもありますが、そうしたゆらぎも含めて参考としてお楽しみください。
+</div>
+  <h1>{video.title}</h1>
+  <p><a href={video.url} target="_blank">▶ YouTubeで見る</a></p>
+
+  {s?.summary && (
+    <>
+      <h2>あらすじ</h2>
+      <p class="summary-text">{s.summary}</p>
+    </>
+  )}
+
+  {s?.topics?.length > 0 && (
+    <>
+      <h2>トピック</h2>
+      <ul class="topic-list">
+        {s.topics.map(t => <li>{t}</li>)}
+      </ul>
+    </>
+  )}
+
+  {s?.sections?.length > 0 && (
+    <>
+      <h2>セクション</h2>
+      <ul style="list-style:none; padding:0;">
+        {s.sections.map(sec => {
+          const toSec = (t) => {
+            const parts = t.trim().split(':').map(Number);
+            if (parts.length === 3) return parts[0]*3600 + parts[1]*60 + parts[2];
+            if (parts.length === 2) return parts[0]*60 + parts[1];
+            return 0;
+          };
+          const startTime = (sec.time_range?.match(/[\d:]+/) ?? [''])[0];
+          const sec_num = startTime ? toSec(startTime) : 0;
+          const ytUrl = sec_num > 0
+          ? `https://www.youtube.com/watch?v=${video.id}&t=${sec_num}s`
+          : `https://www.youtube.com/watch?v=${video.id}`;
+          return (
+            <li style="margin-bottom: 1.5em;">
+              <div style="font-size:0.8rem; margin-bottom:4px;">
+                <a href={ytUrl} target="_blank" style="color:#0b57d0; text-decoration:none;">{sec.time_range}</a>
+              </div>
+              <div style="font-weight:700; margin-bottom:4px;">{sec.title} — </div>
+              <div style="color:#444;">{sec.description}</div>
+            </li>
+          );
+        })}
+      </ul>
+    </>
+  )}
+
+  {s?.songs?.length > 0 && (
+    <>
+      <h2>楽曲</h2>
+      <ul style="list-style:none; padding:0;">
+        {s.songs.map(song => {
+          const toSec = (t) => {
+            const parts = t.trim().split(':').map(Number);
+            if (parts.length === 3) return parts[0]*3600 + parts[1]*60 + parts[2];
+            if (parts.length === 2) return parts[0]*60 + parts[1];
+            return 0;
+          };
+          const timeStr = ((song.time ?? '').match(/[\d:]+/) ?? [''])[0];
+          const sec_num = timeStr ? toSec(timeStr) : 0;
+          const ytUrl = sec_num > 0
+          ? `https://www.youtube.com/watch?v=${video.id}&t=${sec_num}s`
+          : `https://www.youtube.com/watch?v=${video.id}`;
+          return (
+            <li style="margin-bottom: 0.8em;">
+              <a href={ytUrl} target="_blank" style="font-size:0.8rem; color:#0b57d0; text-decoration:none; margin-right:8px;">{song.time}</a>
+              <strong>{song.title}</strong>
+              {song.artist ? <span style="color:#666;"> / {song.artist}</span> : ''}
+            </li>
+          );
+        })}
+      </ul>
+    </>
+  )}
+</body>
+</html>
