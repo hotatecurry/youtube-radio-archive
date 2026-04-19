@@ -255,5 +255,60 @@ const PER_PAGE = 30;
     window.addEventListener('hashchange', applyHash);
     applyHash();
   </script>
+  <!-- 力士イースターエッグ -->
+<div id="rikishi-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; justify-content:center; align-items:center;">
+  <img id="rikishi-img" src="" alt="力士" style="max-width:80vw; max-height:80vh; border-radius:8px;" />
+</div>
+
+<script is:inline>
+  (function() {
+    const keywords = ['力士', 'rikishi', 'りきし', 'リキシ'];
+    const images = [
+      '/rikishi/001.jpg',
+      '/rikishi/002.jpg',
+      '/rikishi/003.jpg',
+      '/rikishi/004.jpg',
+      '/rikishi/005.jpg',
+    ];
+    const audioSrc = '/rikishi/rikishi.wav';
+
+    const overlay = document.getElementById('rikishi-overlay');
+    const img = document.getElementById('rikishi-img');
+    const searchInput = document.getElementById('search');
+
+    let triggered = false;
+
+    searchInput.addEventListener('input', function() {
+      const val = this.value;
+      const match = keywords.some(k => val.includes(k));
+
+      if (match && !triggered) {
+        triggered = true;
+
+        // ランダムに画像を選ぶ
+        const randomImg = images[Math.floor(Math.random() * images.length)];
+        img.src = randomImg;
+
+        // オーバーレイ表示
+        overlay.style.display = 'flex';
+
+        // 音声再生
+        const audio = new Audio(audioSrc);
+        audio.play();
+
+        // 音声が終わったら消える
+        audio.addEventListener('ended', function() {
+          overlay.style.display = 'none';
+          triggered = false;
+        });
+      }
+
+      // キーワードが消えたらリセット
+      if (!match) {
+        triggered = false;
+      }
+    });
+  })();
+</script>
 </body>
 </html>
