@@ -299,7 +299,7 @@ const PER_PAGE = 30;
         // 音声が終わったら消える
         audio.addEventListener('ended', function() {
           overlay.style.display = 'none';
-          triggered = false;
+          // triggered は false に戻さない → ページ更新まで再発火しない
         });
       }
 
