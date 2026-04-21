@@ -122,6 +122,12 @@ const PER_PAGE = 30;
     ⚠️ 要約ページの内容はYouTubeの自動字幕をAIが解析・まとめたものです。字幕の認識精度や自動要約の限界により、人名・曲名・固有名詞などに誤りが含まれる場合があります。さらに、番組の展開やエピソードの解釈が実際と異なることもありますが、そうしたゆらぎも含めて参考としてお楽しみください。
   </div>
 
+  <div style="margin-bottom: 16px;">
+  <button id="random-btn" style="background:#0b57d0; color:#fff; border:none; border-radius:6px; padding:10px 20px; font-size:0.95rem; cursor:pointer; font-weight:500;">
+    🎲 ランダムで要約を見る
+  </button>
+  </div>
+
   <div class="search-bar">
     <input type="text" id="search" placeholder="タイトル・要約で検索..." />
   </div>
@@ -254,6 +260,15 @@ const PER_PAGE = 30;
 
     window.addEventListener('hashchange', applyHash);
     applyHash();
+
+    // ランダムボタン
+    document.getElementById('random-btn').addEventListener('click', function() {
+      const summaryRows = allRows.filter(r => r.querySelector('.summary-link'));
+      if (summaryRows.length === 0) return;
+      const random = summaryRows[Math.floor(Math.random() * summaryRows.length)];
+      const link = random.querySelector('.summary-link');
+      if (link) window.location.href = link.href;
+    });
   </script>
   <!-- 力士イースターエッグ -->
 <div id="rikishi-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; justify-content:center; align-items:center;">
