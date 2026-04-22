@@ -4,6 +4,7 @@ const PER_PAGE = 30;
 ---
 <html lang="ja">
 <head>
+  <link rel="icon" type="image/png" href="/favicon.png" />
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ピクルスはみ出てますよ？ アーカイブ</title>
@@ -114,12 +115,18 @@ const PER_PAGE = 30;
 <body>
   <h1>📻 ピクルスはみ出てますよ？ アーカイブ</h1>
     <div style="background:#f8f9fa; border-radius:8px; padding:16px 20px; margin-bottom:24px; font-size:0.95rem; line-height:1.8;">
-    <p style="margin:0 0 8px;">プロハンバーガーさんとアボカズヒロさんによるYouTubeライブ配信<a href="https://www.youtube.com/@prohamburger1118/streams" target="_blank" style="color:#0b57d0; text-decoration:none;">「ピクルスはみ出てますよ？」</a>の非公式アーカイブサイトです。</p>
+    <p style="margin:0 0 8px;">プロハンバーガーさんとアボカズヒロさんによるYouTubeライブ配信<a href="https://www.youtube.com/@prohamburger1118/streams" target="_blank" style="color:#0b57d0; text-decoration:none;">「ピクルスはみ出てますよ？」</a>（通称：ピクはみ）の非公式アーカイブサイトです。</p>
     <p style="margin:0;">これまでの放送を一覧で確認でき、AIによる自動要約を掲載しています。（一部抜けあり）</p>
   </div>
 
   <div class="notice">
     ⚠️ 要約ページの内容はYouTubeの自動字幕をAIが解析・まとめたものです。字幕の認識精度や自動要約の限界により、人名・曲名・固有名詞などに誤りが含まれる場合があります。さらに、番組の展開やエピソードの解釈が実際と異なることもありますが、そうしたゆらぎも含めて参考としてお楽しみください。
+  </div>
+
+  <div style="margin-bottom: 16px;">
+  <button id="random-btn" style="background:#0b57d0; color:#fff; border:none; border-radius:6px; padding:10px 20px; font-size:0.95rem; cursor:pointer; font-weight:500;">
+    🎲 ランダムで要約を見る
+  </button>
   </div>
 
   <div class="search-bar">
@@ -254,6 +261,70 @@ const PER_PAGE = 30;
 
     window.addEventListener('hashchange', applyHash);
     applyHash();
+
+    // ランダムボタン
+    document.getElementById('random-btn').addEventListener('click', function() {
+      const summaryRows = allRows.filter(r => r.querySelector('.summary-link'));
+      if (summaryRows.length === 0) return;
+      const random = summaryRows[Math.floor(Math.random() * summaryRows.length)];
+      const link = random.querySelector('.summary-link');
+      if (link) window.location.href = link.href;
+    });
   </script>
+  <!-- 力士イースターエッグ -->
+<div id="rikishi-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; justify-content:center; align-items:center;">
+  <img id="rikishi-img" src="" alt="力士" style="max-width:80vw; max-height:80vh; border-radius:8px;" />
+</div>
+
+<script is:inline>
+  (function() {
+    const keywords = ['力士', 'rikishi', 'りきし', 'リキシ'];
+    const images = [
+      '/rikishi/001.jpg',
+      '/rikishi/002.jpg',
+      '/rikishi/003.jpg',
+      '/rikishi/004.jpg',
+      '/rikishi/005.jpg',
+    ];
+    const audioSrc = '/rikishi/rikishi.wav';
+
+    const overlay = document.getElementById('rikishi-overlay');
+    const img = document.getElementById('rikishi-img');
+    const searchInput = document.getElementById('search');
+
+    let triggered = false;
+
+    searchInput.addEventListener('input', function() {
+      const val = this.value;
+      const match = keywords.some(k => val.includes(k));
+
+      if (match && !triggered) {
+        triggered = true;
+
+        // ランダムに画像を選ぶ
+        const randomImg = images[Math.floor(Math.random() * images.length)];
+        img.src = randomImg;
+
+        // オーバーレイ表示
+        overlay.style.display = 'flex';
+
+        // 音声再生
+        const audio = new Audio(audioSrc);
+        audio.play();
+
+        // 音声が終わったら消える
+        audio.addEventListener('ended', function() {
+          overlay.style.display = 'none';
+          // triggered は false に戻さない → ページ更新まで再発火しない
+        });
+      }
+
+      // キーワードが消えたらリセット
+      if (!match) {
+        triggered = false;
+      }
+    });
+  })();
+</script>
 </body>
 </html>

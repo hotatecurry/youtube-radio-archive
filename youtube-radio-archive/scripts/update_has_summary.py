@@ -9,14 +9,12 @@ with open(VIDEOS_JSON, encoding="utf-8") as f:
 
 updated = 0
 for v in videos:
-    summary_path = os.path.join(DATA_DIR, f"{v['id']}_summary.json")
-    if os.path.exists(summary_path):
-        with open(summary_path, encoding="utf-8") as f:
-            v["summary"] = json.load(f)
+    has = os.path.exists(os.path.join(DATA_DIR, f"{v['id']}_summary.json"))
+    if has and not v.get("has_summary"):
         v["has_summary"] = True
         updated += 1
 
 with open(VIDEOS_JSON, "w", encoding="utf-8") as f:
     json.dump(videos, f, ensure_ascii=False, indent=2)
 
-print(f"✅ {updated}本のsummaryを埋め込みました")
+print(f"✅ {updated}本を has_summary=true に更新しました")

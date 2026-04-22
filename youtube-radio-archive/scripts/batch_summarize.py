@@ -5,7 +5,7 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from google import genai
 
 # ⚠️ ここにGemini APIキーを入れる
-API_KEY = "xxx"
+API_KEY = os.environ.get("GEMINI_API_KEY", "")
 DATA_DIR = r"C:\Users\manab\pikuhami\youtube-radio-archive\scripts\data"
 MAX_VIDEOS = 999
 
