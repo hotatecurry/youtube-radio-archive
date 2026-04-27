@@ -28,7 +28,9 @@ jobs:
       - name: Run update script
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python scripts/update.py
+        run: |
+          echo "KEY_LENGTH=${#GEMINI_API_KEY}"
+          python scripts/update.py
 
       - name: Commit and push if changed
         run: |
