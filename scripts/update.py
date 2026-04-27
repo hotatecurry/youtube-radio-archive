@@ -13,7 +13,7 @@ API_KEY = os.environ.get("GEMINI_API_KEY", "")
 SCRIPTS_DIR = Path(__file__).parent
 DATA_DIR = SCRIPTS_DIR / "data"
 IDS_FILE = SCRIPTS_DIR / "filtered_ids.txt"
-OUT_DIR = SCRIPTS_DIR.parent.parent / "src" / "data"
+OUT_DIR = SCRIPTS_DIR.parent / "src" / "data"
 
 
 DATA_DIR.mkdir(exist_ok=True)
