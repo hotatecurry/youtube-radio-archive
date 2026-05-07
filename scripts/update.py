@@ -14,6 +14,7 @@ SCRIPTS_DIR = Path(__file__).parent
 DATA_DIR = SCRIPTS_DIR / "data"
 IDS_FILE = SCRIPTS_DIR / "filtered_ids.txt"
 OUT_DIR = SCRIPTS_DIR.parent / "src" / "data"
+TITLE_KEYWORDS = ["ピクルスはみ出てますよ", "ピクルス、はみ出てますよ"]
 
 
 DATA_DIR.mkdir(exist_ok=True)
@@ -30,7 +31,15 @@ def fetch_latest_videos(channel_id, max_results=5):
         r'<yt:videoId>(.*?)</yt:videoId>.*?<title>(.*?)</title>',
         xml, re.DOTALL
     )
-    return [(vid.strip(), title.strip()) for vid, title in entries[:max_results]]
+    all_entries = [(vid.strip(), title.strip()) for vid, title in entries]
+
+    # 番組関係の動画のみに絞る
+    filtered = [
+        (vid, title) for vid, title in all_entries
+        if any(kw in title for kw in TITLE_KEYWORDS)
+    ]
+    print(f"  フィルタ後: {len(filtered)}件 / 取得{len(all_entries)}件")
+    return filtered[:max_results]
 
 
 # === 字幕取得 ===
