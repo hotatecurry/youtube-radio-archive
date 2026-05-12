@@ -1,6 +1,12 @@
 @echo off
 cd /d C:\Users\manab\pikuhami
 
+echo 🔄 リモートの最新状態を取得中...
+git pull origin main
+
+echo 🗑️ skipファイルを削除中...
+del /q scripts\data\*_skip.json 2>nul
+
 echo 🔄 動画情報・要約を更新中...
 python scripts/update.py
 
