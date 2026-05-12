@@ -172,7 +172,6 @@ def main():
     to_process = [
         vid for vid, _ in new_videos
         if not (DATA_DIR / f"{vid}_summary.json").exists()
-        and not (DATA_DIR / f"{vid}_skip.json").exists()
     ]
 
     if not to_process:
