@@ -170,7 +170,7 @@ def main():
 
     # 未処理の動画だけ要約（新規追加分のみ対象）
     to_process = [
-        vid for vid, _ in new_videos
+        vid for vid in existing_ids
         if not (DATA_DIR / f"{vid}_summary.json").exists()
     ]
 
