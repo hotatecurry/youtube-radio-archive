@@ -218,7 +218,9 @@ def main():
 
     # videos.json を再生成
     print("\n🔨 videos.json を更新中...")
-    build_videos_json(existing_ids, titles_map)
+    excluded_ids = load_excluded_ids()
+    ids_to_build = [vid for vid in existing_ids if vid not in excluded_ids]  # ← 追加
+    build_videos_json(ids_to_build, titles_map)  # ← existing_ids → ids_to_build に変更
 
 
 if __name__ == "__main__":
