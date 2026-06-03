@@ -1,19 +1,20 @@
 @echo off
+chcp 65001 > nul
 cd /d C:\Users\manab\pikuhami
 
-echo ğŸ”„ ãƒªãƒ¢ãƒ¼ãƒˆã®æœ€æ–°çŠ¶æ…‹ã‚’å–å¾—ä¸­...
+echo ƒŠƒ‚[ƒg‚ÌÅVó‘Ô‚ğæ“¾’†...
 git pull origin main
 
-echo ğŸ—‘ï¸ skipãƒ•ã‚¡ã‚¤ãƒ«ã‚’å‰Šé™¤ä¸­...
-del /q scripts\data\*_skip.json 2>nul
+echo skipƒtƒ@ƒCƒ‹‚ğíœ’†iexcludedœ‚­j...
+python scripts\cleanup_skip.py
 
-echo ğŸ”„ å‹•ç”»æƒ…å ±ãƒ»è¦ç´„ã‚’æ›´æ–°ä¸­...
-python scripts/update.py
+echo “®‰æî•ñE—v–ñ‚ğXV’†...
+python scripts\update.py
 
-echo ğŸ“¦ Gitã«ã‚³ãƒŸãƒƒãƒˆï¼†ãƒ—ãƒƒã‚·ãƒ¥ä¸­...
+echo Git‚ÉƒRƒ~ƒbƒg•ƒvƒbƒVƒ…’†...
 git add -A
 git commit -m "Add summary: manual update"
 git push origin main
 
-echo âœ… å®Œäº†ï¼Cloudflare Pagesã®ãƒ‡ãƒ—ãƒ­ã‚¤ã‚’ãŠå¾…ã¡ãã ã•ã„ã€‚
+echo Š®—¹I
 pause
