@@ -108,6 +108,13 @@ def save_ids(ids):
     with open(IDS_FILE, "w", encoding="utf-8") as f:
         f.write("\n".join(ids))
 
+# === excluded_ids.txt の読み込み ===
+def load_excluded_ids():
+    excluded_file = SCRIPTS_DIR / "excluded_ids.txt"
+    if not excluded_file.exists():
+        return set()
+    with open(excluded_file, "r", encoding="utf-8") as f:
+        return {line.strip() for line in f if line.strip()}
 
 # === videos.json の再生成 ===
 def build_videos_json(ids, titles_map):
@@ -157,7 +164,8 @@ def main():
     titles_map = load_titles_map()
 
     # 新しい動画だけ先頭に追加
-    new_videos = [(vid, title) for vid, title in latest if vid not in existing_ids]
+    excluded_ids = load_excluded_ids()
+    new_videos = [(vid, title) for vid, title in latest if vid not in existing_ids and vid not in excluded_ids]
     if not new_videos:
         print("✨ 新しい動画はありませんでした")
     else:
@@ -218,7 +226,6 @@ def main():
 
     # videos.json を再生成
     print("\n🔨 videos.json を更新中...")
-    excluded_ids = load_excluded_ids()
     ids_to_build = [vid for vid in existing_ids if vid not in excluded_ids]  # ← 追加
     build_videos_json(ids_to_build, titles_map)  # ← existing_ids → ids_to_build に変更
 
