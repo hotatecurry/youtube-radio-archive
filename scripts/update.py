@@ -27,13 +27,16 @@ def fetch_latest_videos(channel_id, max_results=5):
     url = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
     req = Request(url, headers={"User-Agent": "Mozilla/5.0"})
     xml = urlopen(req).read().decode()
-    entries = re.findall(
-        r'<yt:videoId>(.*?)</yt:videoId>.*?<title>(.*?)</title>',
-        xml, re.DOTALL
-    )
-    all_entries = [(vid.strip(), title.strip()) for vid, title in entries]
 
-    # 番組関係の動画のみに絞る
+    # entry単位で分割してから、各entry内でvideoIdとtitleを取得
+    entries_raw = re.findall(r'<entry>(.*?)</entry>', xml, re.DOTALL)
+    all_entries = []
+    for entry in entries_raw:
+        vid_match = re.search(r'<yt:videoId>(.*?)</yt:videoId>', entry)
+        title_match = re.search(r'<title>(.*?)</title>', entry)
+        if vid_match and title_match:
+            all_entries.append((vid_match.group(1).strip(), title_match.group(1).strip()))
+
     filtered = [
         (vid, title) for vid, title in all_entries
         if any(kw in title for kw in TITLE_KEYWORDS)
