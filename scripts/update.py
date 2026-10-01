@@ -14,7 +14,7 @@ SCRIPTS_DIR = Path(__file__).parent
 DATA_DIR = SCRIPTS_DIR / "data"
 IDS_FILE = SCRIPTS_DIR / "filtered_ids.txt"
 OUT_DIR = SCRIPTS_DIR.parent / "src" / "data"
-TITLE_KEYWORDS = ["ピクルスはみ出てますよ", "ピクルス、はみ出てますよ"]
+TITLE_KEYWORDS = ["ピクルスはみ出てますよ", "ピクルス、はみ出てますよ", "定例配信"]
 
 
 DATA_DIR.mkdir(exist_ok=True)
