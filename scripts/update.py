@@ -23,19 +23,64 @@ client = genai.Client(api_key=API_KEY)
 
 
 # === YouTube から最新動画IDとタイトルを取得 ===
-def fetch_latest_videos(channel_id, max_results=5):
+def fetch_entries_rss(channel_id):
     url = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
     req = Request(url, headers={"User-Agent": "Mozilla/5.0"})
-    xml = urlopen(req).read().decode()
+    xml = urlopen(req, timeout=30).read().decode()
 
     # entry単位で分割してから、各entry内でvideoIdとtitleを取得
     entries_raw = re.findall(r'<entry>(.*?)</entry>', xml, re.DOTALL)
-    all_entries = []
+    entries = []
     for entry in entries_raw:
         vid_match = re.search(r'<yt:videoId>(.*?)</yt:videoId>', entry)
         title_match = re.search(r'<title>(.*?)</title>', entry)
         if vid_match and title_match:
-            all_entries.append((vid_match.group(1).strip(), title_match.group(1).strip()))
+            entries.append((vid_match.group(1).strip(), title_match.group(1).strip()))
+    return entries
+
+
+# RSSが404になる障害時のフォールバック: チャンネルの動画一覧ページから取得
+def fetch_entries_channel_page(channel_id):
+    url = f"https://www.youtube.com/channel/{channel_id}/videos"
+    req = Request(url, headers={
+        "User-Agent": "Mozilla/5.0",
+        "Accept-Language": "ja",
+        "Cookie": "CONSENT=YES+1; SOCS=CAI",
+    })
+    html = urlopen(req, timeout=30).read().decode("utf-8")
+    m = re.search(r'ytInitialData\s*=\s*(\{.*?\});\s*</script>', html, re.DOTALL)
+    if not m:
+        raise RuntimeError("ytInitialData が見つかりません")
+    data = json.loads(m.group(1))
+
+    entries = []
+    def walk(o):
+        if isinstance(o, dict):
+            lv = o.get("lockupViewModel")
+            if lv:
+                try:
+                    entries.append((lv["contentId"], lv["metadata"]["lockupMetadataViewModel"]["title"]["content"]))
+                except (KeyError, TypeError):
+                    pass
+            for v in o.values():
+                walk(v)
+        elif isinstance(o, list):
+            for v in o:
+                walk(v)
+    walk(data)
+    return list(dict.fromkeys(entries))  # 重複除去（順序維持）
+
+
+def fetch_latest_videos(channel_id, max_results=5):
+    try:
+        all_entries = fetch_entries_rss(channel_id)
+    except Exception as e:
+        print(f"  ⚠️ RSS取得失敗({e}) → チャンネルページから取得します")
+        try:
+            all_entries = fetch_entries_channel_page(channel_id)
+        except Exception as e2:
+            print(f"  ⚠️ チャンネルページ取得も失敗({e2})。新規動画の検出をスキップします")
+            return []
 
     filtered = [
         (vid, title) for vid, title in all_entries
